@@ -1,13 +1,19 @@
 /******************************************************************************
 
 PROGRAM:  ssl-client.c
-AUTHOR:   ***** YOUR CODE HERE *****
+AUTHOR:   Abby Davidson
 COURSE:   CS469 - Distributed Systems (Regis University)
 SYNOPSIS: This program is a small client application that establishes a secure TCP 
           connection to a server and simply exchanges messages.  It uses a SSL/TLS
           connection using X509 certificates generated with the openssl application.  
           The purpose is to demonstrate how to establish and use secure communication
           channels between a client and server using public key cryptography.
+
+          This version of the ssl-client is meant to work together with an ssl-server
+          and a MySQL database server. The client will be able to send RPC messages
+          containing commands to be turned into SQL commands by the server. The client 
+          will also be able to receive the data stored in the database and print it to
+          the screen.
  
           Some of the code and descriptions can be found in "Network Security with
           OpenSSL", O'Reilly Media, 2002.
@@ -36,6 +42,9 @@ SYNOPSIS: This program is a small client application that establishes a secure T
 #define DEFAULT_HOST        "localhost"
 #define MAX_HOSTNAME_LENGTH 256
 #define BUFFER_SIZE         256
+#define MESS_LENGTH         240
+#define RPC_ERROR           123456
+#define RPC_ERROR_MESS      "Error handling RPC"
 
 /******************************************************************************
 
@@ -126,6 +135,11 @@ int main(int argc, char** argv)
   SSL_CTX*          ssl_ctx;
   SSL*              ssl;
   
+  int               nbytes_written;
+  int               nbytes_read;
+  int               rpc_error;
+  char              message[MESS_LENGTH];
+
   if (argc != 2)
     {
       fprintf(stderr, "Client: Usage: ssl-client <server name>:<port>\n");
@@ -202,13 +216,14 @@ int main(int argc, char** argv)
       exit(EXIT_FAILURE);
     }
 
-  //*************************************************************************
-  // YOUR CODE HERE
-  //
-  // You will need to use the SSL_read and SSL_write functions, which work in
-  // the same manner as traditional read and write system calls, but use the
-  // SSL socket descriptor ssl declared above instead of a file descriptor.
-  // ************************************************************************
+  //Get the command to be sent to the server
+  fprinft(stdout, "Client: Enter a command with the required data (create, update, or delete): ");
+  bzero(message, MESS_LENGTH);
+  fgets(message, MESS_LENGTH - 1, stdin);
+  sprintf(buffer, "%s", message);
+
+  //remove trailing newline character
+  buffer[strlen(buffer) - 1] = '\0';
 
   // Deallocate memory for the SSL data structures and close the socket
   SSL_free(ssl);
