@@ -220,10 +220,61 @@ int main(int argc, char** argv)
   fprinft(stdout, "Client: Enter a command with the required data (create, update, or delete): ");
   bzero(message, MESS_LENGTH);
   fgets(message, MESS_LENGTH - 1, stdin);
-  sprintf(buffer, "%s", message);
+  sprintf(buffer, "%s", message); //marshal the message to be sent
 
   //remove trailing newline character
   buffer[strlen(buffer) - 1] = '\0';
+
+  //send message to server and check for errors
+  nbytes_written = SSL_write(ssl, buffer, strlen(buffer));
+
+  if (nbytes_written < 0) {
+    fprintf(stderr, "Client: Unable to write message to ssl socket: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  else {
+    fprintf(stdout, "Client: Successfully sent message \"%s\" to %s on port %u\n", buffer, remote_host, port);
+  }
+
+  //reset buffer and bytes written and read, retrieve message from the server
+  bzero(buffer, BUFFER_SIZE);
+  nbytes_written = 0;
+  nbytes_read = 0;
+
+  rcount = SSL_read(ssl, buffer, BUFFER_SIZE);
+
+  if (rcount < 0) {
+    fprintf(stderr, "Client: Error reading from socket: %s\n", strerror(errno));
+  }
+  else {
+    //check for error or receive the message
+    if (sscanf(buffer, "Error: %d", &rpc_error) == 1) { //error condition from unmarshalled message
+      if (rpc_error == RPC_ERROR) {
+        fprintf(stdout, "Client: Server error: \"%s\"\n", RPC_ERROR_MESS);
+      }
+      else {
+        fprintf(stdout, "Client: Server error: \"%s\"\n", strerror(rpc_error));
+      }
+    }
+    else { //message was received successfully, print it out
+      fprintf(stdout, "Client: Data received from Server, printing...\n");
+      nbytes_read += rcount;
+
+      //while there is more to be read...
+      while (rcount < 0) {
+        wcount = write(1, buffer, rcount);
+
+        rcount = SSL_read(ssl, buffer, BUFFER_SIZE);
+        nbytes_read += rcount;
+
+        if (rcount < 0) {
+          fprintf(stderr, "Client: Unable to read from ssl %s: %s\n", ssl, strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+      }
+      fprintf(stdout, "\nClient: Bytes received from server: \"%d\"\n", nbytes_read);
+    }
+  }
 
   // Deallocate memory for the SSL data structures and close the socket
   SSL_free(ssl);
