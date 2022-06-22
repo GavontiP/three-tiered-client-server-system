@@ -1,13 +1,19 @@
 /******************************************************************************
 
 PROGRAM:  ssl-client.c
-AUTHOR:   ***** YOUR CODE HERE *****
+AUTHOR:   Abby Davidson
 COURSE:   CS469 - Distributed Systems (Regis University)
 SYNOPSIS: This program is a small client application that establishes a secure TCP 
           connection to a server and simply exchanges messages.  It uses a SSL/TLS
           connection using X509 certificates generated with the openssl application.  
           The purpose is to demonstrate how to establish and use secure communication
           channels between a client and server using public key cryptography.
+
+          This version of the ssl-client is meant to work together with an ssl-server
+          and a MySQL database server. The client will be able to send RPC messages
+          containing commands to be turned into SQL commands by the server. The client 
+          will also be able to receive the data stored in the database and print it to
+          the screen.
  
           Some of the code and descriptions can be found in "Network Security with
           OpenSSL", O'Reilly Media, 2002.
@@ -36,6 +42,9 @@ SYNOPSIS: This program is a small client application that establishes a secure T
 #define DEFAULT_HOST        "localhost"
 #define MAX_HOSTNAME_LENGTH 256
 #define BUFFER_SIZE         256
+#define MESS_LENGTH         240
+#define RPC_ERROR           123456
+#define RPC_ERROR_MESS      "Error handling RPC"
 
 /******************************************************************************
 
@@ -126,6 +135,11 @@ int main(int argc, char** argv)
   SSL_CTX*          ssl_ctx;
   SSL*              ssl;
   
+  int               nbytes_written;
+  int               nbytes_read;
+  int               rpc_error;
+  char              message[MESS_LENGTH];
+
   if (argc != 2)
     {
       fprintf(stderr, "Client: Usage: ssl-client <server name>:<port>\n");
@@ -202,13 +216,65 @@ int main(int argc, char** argv)
       exit(EXIT_FAILURE);
     }
 
-  //*************************************************************************
-  // YOUR CODE HERE
-  //
-  // You will need to use the SSL_read and SSL_write functions, which work in
-  // the same manner as traditional read and write system calls, but use the
-  // SSL socket descriptor ssl declared above instead of a file descriptor.
-  // ************************************************************************
+  //Get the command to be sent to the server
+  fprinft(stdout, "Client: Enter a command with the required data (create, update, or delete): ");
+  bzero(message, MESS_LENGTH);
+  fgets(message, MESS_LENGTH - 1, stdin);
+  sprintf(buffer, "%s", message); //marshal the message to be sent
+
+  //remove trailing newline character
+  buffer[strlen(buffer) - 1] = '\0';
+
+  //send message to server and check for errors
+  nbytes_written = SSL_write(ssl, buffer, strlen(buffer));
+
+  if (nbytes_written < 0) {
+    fprintf(stderr, "Client: Unable to write message to ssl socket: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  else {
+    fprintf(stdout, "Client: Successfully sent message \"%s\" to %s on port %u\n", buffer, remote_host, port);
+  }
+
+  //reset buffer and bytes written and read, retrieve message from the server
+  bzero(buffer, BUFFER_SIZE);
+  nbytes_written = 0;
+  nbytes_read = 0;
+
+  rcount = SSL_read(ssl, buffer, BUFFER_SIZE);
+
+  if (rcount < 0) {
+    fprintf(stderr, "Client: Error reading from socket: %s\n", strerror(errno));
+  }
+  else {
+    //check for error or receive the message
+    if (sscanf(buffer, "Error: %d", &rpc_error) == 1) { //error condition from unmarshalled message
+      if (rpc_error == RPC_ERROR) {
+        fprintf(stdout, "Client: Server error: \"%s\"\n", RPC_ERROR_MESS);
+      }
+      else {
+        fprintf(stdout, "Client: Server error: \"%s\"\n", strerror(rpc_error));
+      }
+    }
+    else { //message was received successfully, print it out
+      fprintf(stdout, "Client: Data received from Server, printing...\n");
+      nbytes_read += rcount;
+
+      //while there is more to be read...
+      while (rcount < 0) {
+        wcount = write(1, buffer, rcount);
+
+        rcount = SSL_read(ssl, buffer, BUFFER_SIZE);
+        nbytes_read += rcount;
+
+        if (rcount < 0) {
+          fprintf(stderr, "Client: Unable to read from ssl %s: %s\n", ssl, strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+      }
+      fprintf(stdout, "\nClient: Bytes received from server: \"%d\"\n", nbytes_read);
+    }
+  }
 
   // Deallocate memory for the SSL data structures and close the socket
   SSL_free(ssl);
