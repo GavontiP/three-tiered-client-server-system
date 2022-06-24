@@ -36,7 +36,7 @@ SYNOPSIS: This program is a small server application that receives incoming TCP
 #define BUFFER_SIZE 256
 #define DEFAULT_PORT 4433
 #define RPC_ERROR 123456
-#define PATH_LENGTH 256
+#define PARAM_LENGTH 64
 #define CERTIFICATE_FILE "cert.pem"
 #define KEY_FILE "key.pem"
 
@@ -269,7 +269,11 @@ int main(int argc, char **argv)
     int nbytes_read;
     int too_many;
     int wcount;
-    char path[PATH_LENGTH];
+    int id;
+    char param1[PARAM_LENGTH];
+    char param2[PARAM_LENGTH];
+    char param3[PARAM_LENGTH];
+    char q_buffer[BUFFER_SIZE];
 
     MYSQL *connection;
     MYSQL_ROW row;
@@ -325,32 +329,77 @@ int main(int argc, char **argv)
           // Connect to database 'dognames' on 'localhost' and provide login credentials
           if (mysql_real_connect(connection, "localhost", "username", "password", "dogs", 3306, NULL, 0) != NULL) // TODO: Use socket for remote connection
           {
-            //  Scan message and unmarshal parameters. Check number of parameters
-            if (sscanf(buffer, "get_all %s %s", path, &too_many) == 1) // Check each crud op
+            //  Scan message and unmarshal parameters. Check number of parameters for each CRUD op
+            if (sscanf(buffer, "get_all %d", &too_many) == 0) 
             {
-              bzero(buffer, BUFFER_SIZE);
-              // open user defined input file for reading
+              // Query the database to SELECT all rows from 'famous_dogs'
+              if (mysql_query(connection, "SELECT * FROM famous_dogs"))
+              {
+                fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
+                mysql_close(connection);
+                return EXIT_FAILURE;
+              }
+
+              // Get the result of the SQL query and store at object refernced by pointer 'result'
+              if ((result = mysql_store_result(connection)) == NULL)
+              {
+                fprintf(stderr, "%s\n", mysql_error(connection));
+                mysql_close(connection);
+                return EXIT_FAILURE;
+              }
+
+              // Iterate over result, print, marshal, and return to client
+              while (row = mysql_fetch_row(result))
+              {
+                // TODO marhsal and send result
+                printf("ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
+              }
             }
-            else if (sscanf(buffer, "get %s %s", path, &too_many) == 1)
+            else if (sscanf(buffer, "get %d %d", &id, &too_many) == 1)
+            {
+              // Zero query buffer and build select query
+              bzero(q_buffer, BUFFER_SIZE);
+              sprintf(q_buffer, "SELECT * FROM famous_dogs WHERE id = %d", id);
+
+              // Query the database to SELECT all rows from 'famous_dogs'
+              if (mysql_query(connection, q_buffer))
+              {
+                fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
+                mysql_close(connection);
+                return EXIT_FAILURE;
+              }
+
+              // Get the result of the SQL query and store at object refernced by pointer 'result'
+              if ((result = mysql_store_result(connection)) == NULL)
+              {
+                fprintf(stderr, "%s\n", mysql_error(connection));
+                mysql_close(connection);
+                return EXIT_FAILURE;
+              }
+
+              // Iterate over result, print, marshal, and return to client
+              while (row = mysql_fetch_row(result))
+              {
+                // TODO marhsal and send result
+                printf("ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
+              }
+            }
+            else if (sscanf(buffer, "add %d %s %s %d", &id, param1, param2, &too_many) == 3)
             {
               /* code */
             }
-            else if (sscanf(buffer, "add %s %s", path, &too_many) == 1)
+            else if (sscanf(buffer, "update %d %s %s %d", &id, param1, param2, &too_many) == 3)
             {
               /* code */
             }
-            else if (sscanf(buffer, "update %s %s", path, &too_many) == 1)
-            {
-              /* code */
-            }
-            else if (sscanf(buffer, "delete %s %s", path, &too_many) == 1)
+            else if (sscanf(buffer, "delete %d %d", &id, &too_many) == 1)
             {
               /* code */
             }
             else
             {
               // Invalid input send error message
-              fprintf(stdout, "Server error marshalling input from: %s\n", client_addr);
+              fprintf(stdout, "Server error marshalling query from: %s\n", client_addr);
               bzero(buffer, BUFFER_SIZE);
               sprintf(buffer, "ERROR: %d", RPC_ERROR);
               SSL_write(ssl, buffer, strlen(buffer));
@@ -358,16 +407,15 @@ int main(int argc, char **argv)
           }
           else
           {
-            fprintf(stderr, "Could not connect to MySQL database: %s\n",
-                    mysql_error(connection));
+            fprintf(stderr, "Could not connect to MySQL database: %s\n", mysql_error(connection));
             mysql_close(connection);
-            return EXIT_FAILURE;
+            return EXIT_FAILURE; // TODO Marshal Error
           }
         }
         else
         {
           fprintf(stderr, "Could not initialize mysql: %s\n", mysql_error(connection));
-          return EXIT_FAILURE;
+          return EXIT_FAILURE; // TODO Marshal Error
         }
       }
     }
