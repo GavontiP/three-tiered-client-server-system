@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   // Connect to database 'dognames' on 'localhost' and provide login credentials
 
   if (mysql_real_connect(connection, "localhost", "root", "password", // change username and password
-                         "tacos_recipes", 3306, NULL, 0) == NULL)
+                         "dogs", 3306, NULL, 0) == NULL)
   {
     fprintf(stderr, "Could not connect to MySQL database: %s\n",
             mysql_error(connection));
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
   // Query the database using a SELECT command on the table 'famous_dogs'
 
-  if (mysql_query(connection, "SELECT * FROM MyTable1"))
+  if (mysql_query(connection, "SELECT * FROM famous_dogs;"))
   {
     fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
     mysql_close(connection);
@@ -71,28 +71,31 @@ int main(int argc, char **argv)
   // Query the database using an INSERT command on the table 'famous_dogs'
   // This assumes the entry with ID 7 (primary key) does not already exist.
 
-  // if (mysql_query(connection, "INSERT INTO famous_dogs (id, name, breed) VALUES (7, 'Beethoven', 'Saint Bernard' );")) {
-  // fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
-  // mysql_close(connection);
-  // return EXIT_FAILURE;
-  //}
+  if (mysql_query(connection, "INSERT INTO famous_dogs (id, name, breed) VALUES (7, 'Beethoven', 'Saint Bernard' );"))
+  {
+    fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
+    mysql_close(connection);
+    return EXIT_FAILURE;
+  }
 
   // Get the updated result by executing a SELECT query
 
-  // if (mysql_query(connection, "SELECT * FROM famous_dogs")) {
-  // fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
-  // mysql_close(connection);
-  // return EXIT_FAILURE;
-  //}
+  if (mysql_query(connection, "SELECT * FROM famous_dogs"))
+  {
+    fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
+    mysql_close(connection);
+    return EXIT_FAILURE;
+  }
 
   // Get the result of the SQL query and reference it using the pointer
   // variable 'result'
 
-  // if ((result = mysql_store_result(connection)) == NULL) {
-  //   fprintf(stderr, "%s\n", mysql_error(connection));
-  //   mysql_close(connection);
-  //    return EXIT_FAILURE;
-  //}
+  if ((result = mysql_store_result(connection)) == NULL)
+  {
+    fprintf(stderr, "%s\n", mysql_error(connection));
+    mysql_close(connection);
+    return EXIT_FAILURE;
+  }
 
   // Get each row from the query result, then output the three fields in each
 
