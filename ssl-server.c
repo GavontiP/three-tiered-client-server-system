@@ -386,7 +386,21 @@ int main(int argc, char **argv)
             }
             else if (sscanf(buffer, "add %d %s %s %d", &id, param1, param2, &too_many) == 3)
             {
-              /* code */
+              // Zero query buffer and build select query
+              bzero(q_buffer, BUFFER_SIZE);
+              sprintf(q_buffer, "INSERT INTO famous_dogs (id, name, breed) VALUES (%d, '%s', '%s' );", &id, param1, param2);
+
+              // Query the database to INSERT new record into 'famous_dogs'
+              if (mysql_query(connection, q_buffer))
+              {
+                fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
+                mysql_close(connection);
+                return EXIT_FAILURE;
+              }
+              else
+              {
+                printf("Record INSERT Successful\n");
+              }
             }
             else if (sscanf(buffer, "update %d %s %s %d", &id, param1, param2, &too_many) == 3)
             {
@@ -404,6 +418,9 @@ int main(int argc, char **argv)
               sprintf(buffer, "ERROR: %d", RPC_ERROR);
               SSL_write(ssl, buffer, strlen(buffer));
             }
+
+            mysql_free_result(result);
+            mysql_close(connection);
           }
           else
           {
