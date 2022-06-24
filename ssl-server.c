@@ -384,9 +384,28 @@ int main(int argc, char **argv)
                 printf("ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
               }
             }
-            else if (sscanf(buffer, "add %d %s %s %d", &id, param1, param2, &too_many) == 3)
+            else if (sscanf(buffer, "add %s %s %d", param1, param2, &too_many) == 2)
             {
-              // Zero query buffer and build select query
+              // Zero query buffer and build INSERT query
+              bzero(q_buffer, BUFFER_SIZE);
+              sprintf(q_buffer, "INSERT INTO famous_dogs (name, breed) VALUES ('%s', '%s' );", param1, param2);
+
+              // Query the database to INSERT new record into 'famous_dogs'
+              if (mysql_query(connection, q_buffer))
+              {
+                fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
+                mysql_close(connection);
+                return EXIT_FAILURE;
+              }
+              else
+              {
+                // TODO marshal successful insert message
+                printf("Record INSERT Successful\n");
+              }
+            }
+            else if (sscanf(buffer, "update %d %s %s %d", &id, param1, param2, &too_many) == 3)
+            {
+              // Zero query buffer and build INSERT query
               bzero(q_buffer, BUFFER_SIZE);
               sprintf(q_buffer, "INSERT INTO famous_dogs (id, name, breed) VALUES (%d, '%s', '%s' );", &id, param1, param2);
 
@@ -399,16 +418,28 @@ int main(int argc, char **argv)
               }
               else
               {
+                // TODO marshal successful insert message
                 printf("Record INSERT Successful\n");
               }
             }
-            else if (sscanf(buffer, "update %d %s %s %d", &id, param1, param2, &too_many) == 3)
-            {
-              /* code */
-            }
             else if (sscanf(buffer, "delete %d %d", &id, &too_many) == 1)
             {
-              /* code */
+              // Zero query buffer and build DELETE query
+              bzero(q_buffer, BUFFER_SIZE);
+              sprintf(q_buffer, "DELETE FROM famous_dogs WHERE id = %d", id);
+
+              // Query the database to DELETE record from 'famous_dogs'
+              if (mysql_query(connection, q_buffer))
+              {
+                fprintf(stderr, "MySQL query failed: %s\n", mysql_error(connection));
+                mysql_close(connection);
+                return EXIT_FAILURE;
+              }
+              else
+              {
+                // TODO marshal successful delete message
+                printf("Record DELETE Successful\n");
+              }
             }
             else
             {
