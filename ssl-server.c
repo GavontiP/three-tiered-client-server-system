@@ -1,7 +1,7 @@
 /******************************************************************************
 
 PROGRAM:  ssl-server.c
-AUTHOR:   ***** YOUR NAME HERE *****
+AUTHOR:   Forest Wade
 COURSE:   CS469 - Distributed Systems (Regis University)
 SYNOPSIS: This program is a small server application that receives incoming TCP
           connections from clients and transfers a requested file from the
