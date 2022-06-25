@@ -15,7 +15,7 @@ ssl-client.o: ssl-client.c
 	$(CC) $(CFLAGS) -c ssl-client.c
 
 ssl-server: ssl-server.o
-	$(CC) $(CFLAGS) -o ssl-server ssl-server.o $(LDFLAGS)
+	$(CC) $(CFLAGS) -o ssl-server ssl-server.o `mysql_config --cflags --libs` $(LDFLAGS)
 
 ssl-server.o: ssl-server.c
 	$(CC) $(CFLAGS) -c ssl-server.c
