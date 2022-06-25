@@ -217,8 +217,8 @@ int main(int argc, char** argv)
     }
 
   //Get the command to be sent to the server
-  fprintf(stdout, "Client: Available Commands:\n   get_all (no args)\n   get (1 int id arg)\n" +   
-          "delete (1 int id arg)\n   update (arg for each column and record id)\n   add (arg for each column)");
+  fprintf(stdout, "Client: Available Commands:\n   get_all (no args)\n   get (1 int id arg)\n");
+  fprintf(stdout, "delete (1 int id arg)\n   update (arg for each column and record id)\n   add (arg for each column)");
   fprintf(stdout, "Client: Enter a command with the required data: ");
   bzero(message, MESS_LENGTH);
   fgets(message, MESS_LENGTH - 1, stdin);
@@ -263,9 +263,9 @@ int main(int argc, char** argv)
       nbytes_read += rcount;
 
       //while there is more to be read...
-      while (rcount < 0) {
-        wcount = write(1, buffer, rcount);
-
+      while (rcount > 0) {
+        // wcount = write(1, buffer, rcount);
+        printf("%s", buffer);
         rcount = SSL_read(ssl, buffer, BUFFER_SIZE);
         nbytes_read += rcount;
 

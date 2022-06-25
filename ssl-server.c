@@ -327,10 +327,10 @@ int main(int argc, char **argv)
         if ((connection = mysql_init(NULL)) != NULL)
         {
           // Connect to database 'dognames' on 'localhost' and provide login credentials
-          if (mysql_real_connect(connection, "localhost", "username", "password", "dogs", 3306, NULL, 0) != NULL) // TODO: Use socket for remote connection
+          if (mysql_real_connect(connection, "localhost", "dbuser", "wordpass", "dogs", 3306, NULL, 0) != NULL) // TODO: Use socket for remote connection
           {
             //  Scan message and unmarshal parameters. Check number of parameters for each CRUD op
-            if (sscanf(buffer, "get_all %d", &too_many) == 0) 
+            if (sscanf(buffer, "get_all %d", &too_many) < 0) 
             {
               // Query the database to SELECT all rows from 'famous_dogs'
               if (mysql_query(connection, "SELECT * FROM famous_dogs"))
@@ -388,7 +388,7 @@ int main(int argc, char **argv)
             {
               // Zero query buffer and build INSERT query
               bzero(q_buffer, BUFFER_SIZE);
-              sprintf(q_buffer, "INSERT INTO famous_dogs (name, breed) VALUES ('%s', '%s' );", param1, param2);
+              sprintf(q_buffer, "INSERT INTO famous_dogs (name, breed) VALUES ( '%s', '%s' );", param1, param2);
 
               // Query the database to INSERT new record into 'famous_dogs'
               if (mysql_query(connection, q_buffer))
@@ -440,6 +440,9 @@ int main(int argc, char **argv)
                 // TODO marshal successful delete message
                 printf("Record DELETE Successful\n");
               }
+
+              mysql_free_result(result);
+              mysql_close(connection);
             }
             else
             {
@@ -449,9 +452,6 @@ int main(int argc, char **argv)
               sprintf(buffer, "ERROR: %d", RPC_ERROR);
               SSL_write(ssl, buffer, strlen(buffer));
             }
-
-            mysql_free_result(result);
-            mysql_close(connection);
           }
           else
           {
