@@ -29,4 +29,13 @@
 - or to specify a different port, type:
 - _./ssl-server (port number)_
 
+## This will start the server, listening for incoming TCP connections on the default or specified port. Use a port number greater than 1024, since those below or equal to 1024 are _well-known_ ports reserved for specific applications
 
+- In the second terminal window, invoke the client by typing:
+- _./ssl-client localhost_
+- If the server is on a different machine than the client, you will need to specify that host name in place of localhost
+- To specify a specific port type:
+- _./ssl-client localhost:4435_
+- where 4435 is whatever port number you want to specify.
+
+## Once the connection is made, the client will list a series of possible commands and prompt the user for an input. Type one of the commands in the format provided to send it to the server.
