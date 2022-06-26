@@ -29,7 +29,7 @@ INSERT INTO famous_dogs ( id, name, breed )
 VALUES ( 1, 'Doug', 'Pug' ), (2, 'Toto', 'Cairn Terrier' ), ( 3, 'Beethoven', 'Saint Bernard'), ( 7, 'Beethoven', 'Saint Bernard');
 
 
-## Installing and setting up VM using VirtaulBox
+## Installing and setting up VM using VirtualBox
 (https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#4-changing-the-window-resolution) (link to ubuntu tutorial)
 
 ## Running The Program
