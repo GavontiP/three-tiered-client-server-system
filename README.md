@@ -16,7 +16,7 @@ Enter the root password established in the previous step. This should bring you 
 At the shell prompt (mysql>), type:
 - CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
 Next, grant access rights to the newly created user account. Type:
-GRANT ALL PRIVILEGES ON * . * TO 'newuser'@'localhost';
+- GRANT ALL PRIVILEGES ON * . * TO 'newuser'@'localhost';
 FLUSH PRIVILEGES;
 ### Create a new database
   - At the MySQL client shell prompt, type:
@@ -31,6 +31,11 @@ VALUES ( 1, 'Doug', 'Pug' ), (2, 'Toto', 'Cairn Terrier' ), ( 3, 'Beethoven', 'S
 
 ## Installing and setting up VM using VirtualBox
 (https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#4-changing-the-window-resolution) (link to ubuntu tutorial)
+
+ - in the virtual machine you will have to install the following:
+    - sudo apt-get install libssl-dev
+    - sudo apt-get install -y mysql-server libmysqlclient-dev
+    - sudo apt install gcc
 
 ## Running The Program
 
