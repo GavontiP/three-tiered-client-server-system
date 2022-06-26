@@ -351,8 +351,11 @@ int main(int argc, char **argv)
               // Iterate over result, print, marshal, and return to client
               while (row = mysql_fetch_row(result))
               {
-                // TODO marhsal and send result
-                printf("ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
+                bzero(buffer, BUFFER_SIZE);
+                sprintf(buffer, "ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
+                SSL_write(ssl, buffer, strlen(buffer));
+                fprintf(stdout, "%s", buffer);
+                // printf("ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
               }
             }
             else if (sscanf(buffer, "get %d %d", &id, &too_many) == 1)
@@ -380,8 +383,10 @@ int main(int argc, char **argv)
               // Iterate over result, print, marshal, and return to client
               while (row = mysql_fetch_row(result))
               {
-                // TODO marhsal and send result
-                printf("ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
+                bzero(buffer, BUFFER_SIZE);
+                sprintf(buffer, "ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
+                SSL_write(ssl, buffer, strlen(buffer));
+                fprintf(stdout, "%s", buffer);
               }
             }
             else if (sscanf(buffer, "add %s %s %d", param1, param2, &too_many) == 2)
@@ -399,15 +404,17 @@ int main(int argc, char **argv)
               }
               else
               {
-                // TODO marshal successful insert message
-                printf("Record INSERT Successful\n");
+                bzero(buffer, BUFFER_SIZE);
+                sprintf(buffer, "Record insert: Success");
+                SSL_write(ssl, buffer, strlen(buffer));
+                fprintf(stdout, "Server: %s", buffer);
               }
             }
             else if (sscanf(buffer, "update %d %s %s %d", &id, param1, param2, &too_many) == 3)
             {
               // Zero query buffer and build INSERT query
               bzero(q_buffer, BUFFER_SIZE);
-              sprintf(q_buffer, "INSERT INTO famous_dogs (id, name, breed) VALUES (%d, '%s', '%s' );", &id, param1, param2);
+              sprintf(q_buffer, "UPDATE famous_dogs SET name = '%s', breed = '%s' WHERE id = %d;", param1, param2, id);
 
               // Query the database to INSERT new record into 'famous_dogs'
               if (mysql_query(connection, q_buffer))
@@ -418,8 +425,10 @@ int main(int argc, char **argv)
               }
               else
               {
-                // TODO marshal successful insert message
-                printf("Record INSERT Successful\n");
+                bzero(buffer, BUFFER_SIZE);
+                sprintf(buffer, "Record update: success");
+                SSL_write(ssl, buffer, strlen(buffer));
+                fprintf(stdout, "Server: %s", buffer);
               }
             }
             else if (sscanf(buffer, "delete %d %d", &id, &too_many) == 1)
@@ -437,8 +446,10 @@ int main(int argc, char **argv)
               }
               else
               {
-                // TODO marshal successful delete message
-                printf("Record DELETE Successful\n");
+                bzero(buffer, BUFFER_SIZE);
+                sprintf(buffer, "Record delete: Success");
+                SSL_write(ssl, buffer, strlen(buffer));
+                fprintf(stdout, "Server: %s", buffer);
               }
 
               mysql_free_result(result);
