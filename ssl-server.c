@@ -1,7 +1,7 @@
 /******************************************************************************
 
 PROGRAM:  ssl-server.c
-AUTHOR:   Group 1
+AUTHOR:   Forest Wade, Abby Davidson, Gavonti Patton
 COURSE:   CS469 - Distributed Systems (Regis University)
 SYNOPSIS: This program is a small SQL server application that receives incoming TCP
           connections from clients and and responds to CRUD requests, returning MySQL
