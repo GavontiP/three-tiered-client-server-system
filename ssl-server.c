@@ -325,10 +325,10 @@ int main(int argc, char **argv)
         if ((connection = mysql_init(NULL)) != NULL)
         {
           // Connect to database 'dognames' on 'localhost' and provide login credentials
-          if (mysql_real_connect(connection, "localhost", "dbuser", "wordpass", "dogs", 3306, NULL, 0) != NULL)
+          if (mysql_real_connect(connection, "localhost", "root", "password", "dogs", 3306, NULL, 0) != NULL)
           {
             //  Scan message and unmarshal parameters. Check number of parameters for each CRUD op
-            if (sscanf(buffer, "get_all %d", &too_many) < 0) 
+            if (sscanf(buffer, "get_all %d", &too_many) < 0)
             {
               // Query the database to SELECT all rows from 'famous_dogs'
               if (mysql_query(connection, "SELECT * FROM famous_dogs"))
@@ -386,11 +386,11 @@ int main(int argc, char **argv)
                 fprintf(stdout, "%s", buffer);
               }
             }
-            else if (sscanf(buffer, "add %s %s %d", param1, param2, &too_many) == 2)
+            else if (sscanf(buffer, "add %d %s %s %d", &id, param1, param2, &too_many) == 3)
             {
               // Zero query buffer and build INSERT query
               bzero(q_buffer, BUFFER_SIZE);
-              sprintf(q_buffer, "INSERT INTO famous_dogs (name, breed) VALUES ( '%s', '%s' );", param1, param2);
+              sprintf(q_buffer, "INSERT INTO famous_dogs (name, breed, id) VALUES ( '%s', '%s', '%d');", param1, param2, id);
 
               // Query the database to INSERT new record into 'famous_dogs'
               if (mysql_query(connection, q_buffer))
