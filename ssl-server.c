@@ -3,9 +3,9 @@
 PROGRAM:  ssl-server.c
 AUTHOR:   Forest Wade
 COURSE:   CS469 - Distributed Systems (Regis University)
-SYNOPSIS: This program is a small server application that receives incoming TCP
-          connections from clients and transfers a requested file from the
-          server to the client.  It uses a secure SSL/TLS connection using
+SYNOPSIS: This program is a small SQL server application that receives incoming TCP
+          connections from clients and and responds to CRUD requests, returning MySQL
+          data to the client.  It uses a secure SSL/TLS connection using
           a certificate generated with the openssl application.
 
           To create a self-signed certificate your server can use, at the command
@@ -322,12 +322,10 @@ int main(int argc, char **argv)
         fprintf(stderr, "Server: Error reading from socket: %s\n", strerror(errno));
       else
       {
-        // TODO: new websocket to SQL server
-
         if ((connection = mysql_init(NULL)) != NULL)
         {
           // Connect to database 'dognames' on 'localhost' and provide login credentials
-          if (mysql_real_connect(connection, "localhost", "dbuser", "wordpass", "dogs", 3306, NULL, 0) != NULL) // TODO: Use socket for remote connection
+          if (mysql_real_connect(connection, "localhost", "dbuser", "wordpass", "dogs", 3306, NULL, 0) != NULL)
           {
             //  Scan message and unmarshal parameters. Check number of parameters for each CRUD op
             if (sscanf(buffer, "get_all %d", &too_many) < 0) 
@@ -355,7 +353,6 @@ int main(int argc, char **argv)
                 sprintf(buffer, "ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
                 SSL_write(ssl, buffer, strlen(buffer));
                 fprintf(stdout, "%s", buffer);
-                // printf("ID: %s Name: %s Breed: %s\n", row[0], row[1], row[2]);
               }
             }
             else if (sscanf(buffer, "get %d %d", &id, &too_many) == 1)
@@ -451,7 +448,7 @@ int main(int argc, char **argv)
                 SSL_write(ssl, buffer, strlen(buffer));
                 fprintf(stdout, "Server: %s", buffer);
               }
-
+              // Free memory used for result structure and close db connection
               mysql_free_result(result);
               mysql_close(connection);
             }
@@ -460,21 +457,27 @@ int main(int argc, char **argv)
               // Invalid input send error message
               fprintf(stdout, "Server error marshalling query from: %s\n", client_addr);
               bzero(buffer, BUFFER_SIZE);
-              sprintf(buffer, "ERROR: %d", RPC_ERROR);
+              sprintf(buffer, "Error: %d", RPC_ERROR);
               SSL_write(ssl, buffer, strlen(buffer));
             }
           }
           else
           {
-            fprintf(stderr, "Could not connect to MySQL database: %s\n", mysql_error(connection));
+            bzero(buffer, BUFFER_SIZE);
+            sprintf(buffer, "Could not connect to MySQL database: %s\n", mysql_error(connection));
+            SSL_write(ssl, buffer, strlen(buffer));
+            fprintf(stderr, "%s", buffer);
             mysql_close(connection);
-            return EXIT_FAILURE; // TODO Marshal Error
+            return EXIT_FAILURE;
           }
         }
         else
         {
-          fprintf(stderr, "Could not initialize mysql: %s\n", mysql_error(connection));
-          return EXIT_FAILURE; // TODO Marshal Error
+          bzero(buffer, BUFFER_SIZE);
+          sprintf(buffer, "Could not initialize mysql: %s\n", mysql_error(connection));
+          SSL_write(ssl, buffer, strlen(buffer));
+          fprintf(stderr, "%s", buffer);
+          return EXIT_FAILURE;
         }
       }
     }
