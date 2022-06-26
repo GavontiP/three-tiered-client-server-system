@@ -28,6 +28,7 @@ FLUSH PRIVILEGES;
 INSERT INTO famous_dogs ( id, name, breed ) 
 VALUES ( 1, 'Doug', 'Pug' ), (2, 'Toto', 'Cairn Terrier' ), ( 3, 'Beethoven', 'Saint Bernard'), ( 7, 'Beethoven', 'Saint Bernard');
 
+### make sure to update the server connection with the credentials of your new datbase line 328 in ssl-server.c
 
 ## Installing and setting up VM using VirtualBox
 (https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#4-changing-the-window-resolution) (link to ubuntu tutorial)
