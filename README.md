@@ -71,3 +71,8 @@ VALUES ( 1, 'Doug', 'Pug' ), (2, 'Toto', 'Cairn Terrier' ), ( 3, 'Beethoven', 'S
 - where 4435 is whatever port number you want to specify.
 
 ## Once the connection is made, the client will list a series of possible commands and prompt the user for an input. Type one of the commands in the format provided to send it to the server.
+
+## DEMO VIDEO
+https://user-images.githubusercontent.com/94074836/175838425-28b7a098-d732-4a77-bd59-dc2c2fee4cc6.mp4
+
+
