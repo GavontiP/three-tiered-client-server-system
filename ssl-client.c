@@ -255,7 +255,7 @@ int main(int argc, char** argv)
         fprintf(stdout, "Client: Server error: \"%s\"\n", RPC_ERROR_MESS);
       }
       else {
-        fprintf(stdout, "Client: Server error: \"%s\"\n", strerror(rpc_error));
+        fprintf(stdout, "Client: Server error: \"%s\"\n", rpc_error);
       }
     }
     else { //message was received successfully, print it out
