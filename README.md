@@ -1,5 +1,37 @@
 # three-tiered-client-server-system
 
+## MySql Database Setup Instructions
+
+### Install the MySQL server 
+At the command prompt, type:
+- sudo apt-get update
+- sudo apt-get install mysql-server
+### Set the root password, type:
+- sudo mysql_secure_installation utility
+- Then just follow the prompts.
+### Run the MySQL server and create a user
+- First, run the mysql client:
+- sudo mysql -u root –p
+Enter the root password established in the previous step. This should bring you to the mysql shell.
+At the shell prompt (mysql>), type:
+- CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+Next, grant access rights to the newly created user account. Type:
+GRANT ALL PRIVILEGES ON * . * TO 'newuser'@'localhost';
+FLUSH PRIVILEGES;
+### Create a new database
+  - At the MySQL client shell prompt, type:
+   -  CREATE DATABASE dogs;
+   -  CREATE TABLE famous_dogs ( id INT UNSIGNED NOT NULL, name VARCHAR(30) NOT NULL, breed VARCHAR(30) NOT NULL );
+
+### Now we can begin inserting data:
+
+INSERT INTO famous_dogs ( id, name, breed ) 
+VALUES ( 1, 'Doug', 'Pug' ), (2, 'Toto', 'Cairn Terrier' ), ( 3, 'Beethoven', 'Saint Bernard'), ( 7, 'Beethoven', 'Saint Bernard');
+
+
+## Installing and setting up VM using VirtaulBox
+(https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#4-changing-the-window-resolution) (link to ubuntu tutorial)
+
 ## Running The Program
 
 ### In the working directory, several files will be needed:
