@@ -218,7 +218,7 @@ int main(int argc, char** argv)
 
   //Get the command to be sent to the server
   fprintf(stdout, "Client: Available Commands:\n   get_all (no args)\n   get (1 int id arg)\n");
-  fprintf(stdout, "delete (1 int id arg)\n   update (arg for each column and record id)\n   add (arg for each column)");
+  fprintf(stdout, "delete (1 int id arg)\n   update (arg for each column and record id)\n   add (arg for each column)\n");
   fprintf(stdout, "Client: Enter a command with the required data: ");
   bzero(message, MESS_LENGTH);
   fgets(message, MESS_LENGTH - 1, stdin);
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
     }
   }
 
-  // Deallocate memory for the SSL data structures and close the socket
+  //Deallocate memory for the SSL data structures and close the socket
   SSL_free(ssl);
   SSL_CTX_free(ssl_ctx);
   close(sockfd);
