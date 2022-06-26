@@ -265,6 +265,7 @@ int main(int argc, char** argv)
       //while there is more to be read...
       while (rcount > 0) {
         printf("%s", buffer);
+        bzero(buffer, BUFFER_SIZE);
         rcount = SSL_read(ssl, buffer, BUFFER_SIZE);
         nbytes_read += rcount;
 
