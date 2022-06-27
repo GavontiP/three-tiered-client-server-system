@@ -1,6 +1,6 @@
 # three-tiered-client-server-system
 
-## MySql Database Setup Instructions
+### MySql Database Setup Instructions
 
 - The first step is installing the server and development libraries. On Ubuntu Linux, at the command prompt type:
 - sudo apt-get install -y mysql-server libmysqlclient-dev
