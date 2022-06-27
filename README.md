@@ -2,6 +2,8 @@
 
 ## MySql Database Setup Instructions
 
+- The first step is installing the server and development libraries. On Ubuntu Linux, at the command prompt type:
+- sudo apt-get install -y mysql-server libmysqlclient-dev
 ### Install the MySQL server 
 At the command prompt, type:
 - sudo apt-get update
